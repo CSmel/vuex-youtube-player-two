@@ -73,9 +73,7 @@
                     <v-avatar class="ma-3" size="100" tile>
                       <v-img :src="d.snippet.thumbnails.default.url"></v-img>
                     </v-avatar>
-                    <div class="durationId" :class="[`duration${index}`]">
-                      {{ d.snippet.resourceId.videoId }}
-                    </div>
+                    <div class="durationId" :class="[`duration${index}`]">{{ d.snippet.resourceId.videoId }}</div>
                   </div>
                   <v-expand-transition>
                     <div
@@ -97,27 +95,36 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 import axios from "axios";
 export default {
   name: "ContainerPlaylist",
   components: {},
   data() {
     return {
-      showIndex: null
+      showIndex: null,
+    dialog: false,
+
     };
   },
   props: {},
   watch: {
-    playlistTitle() {
-      this.showIndex = 0;
-    }
+  playlistTitle() {
+  this.showIndex = 0
+   const playClassTotal = document.querySelectorAll(".play");
+
+  for (let i = 0; i < playClassTotal.length; i++) {
+  playClassTotal[i].classList.remove("vid-active");
+  playClassTotal[0].classList.add("vid-active");
+  }
+  }
   },
   mounted() {
     this.formatDurationTime();
   },
 
   updated() {
-    this.formatDurationTime();
+ this.formatDurationTime();
   },
 
   methods: {
@@ -220,65 +227,30 @@ export default {
     }
   },
   computed: {
-    dialog() {
-      return this.$store.state.dialog;
-    },
-    // /showIndex(){
-    // return this.$store.state.showIndex
-    //
-    // },
-    videoAttr() {
-      return this.$store.state.videoAttr;
-    },
-    title() {
-      return this.$store.state.title;
-    },
-    viewCount() {
-      return this.$store.state.viewCount;
-    },
-    newPublishedAt() {
-      return this.$store.state.newPublishedAt;
-    },
-    likeCount() {
-      return this.$store.state.likeCount;
-    },
-    dislikeCount() {
-      return this.$store.state.dislikeCount;
-    },
-    desc() {
-      return this.$store.state.desc;
-    },
-    videoList() {
-      return this.$store.state.videoList;
-    },
-    //playVideo() {
-
-    //},
-    channels_title() {
-      return this.$store.state.channels_title;
-    },
-    channels_name() {
-      return this.$store.state.channels_name;
-    },
-    channelsHref() {
-      return this.$store.state.channelsHref;
-    },
-    pageTokenUrl() {
-      return this.$store.state.pageTokenUrl;
-    },
-    playlistTitle() {
-      return this.$store.state.playlistTitle;
-    },
-    channelTitle() {
-      return this.$store.state.channelTitle;
-    }
+  ...mapGetters([
+    'dialog',
+    'videoAttr',
+    'title',
+    'viewCount',
+    'newPublishedAt',
+    'likeCount',
+    'dislikeCount',
+    'desc',
+    'videoList',
+    'channels_title',
+    'channels_name',
+    'channelsHref',
+    'pageTokenUrl',
+  'playlistTitle',
+    'channelTitle'
+  ])
   }
 };
 </script>
 <style scoped>
 .durationId {
   border: 1px solid red;
-  display: none;
+ display: none;
 }
 
 .displayDuration {

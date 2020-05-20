@@ -45,6 +45,7 @@
 export default {
   name: "ContainerFavorite",
   data: () => ({
+    resetIndex: 0,
     items: [
       {
         color: "#1F7087",
@@ -94,10 +95,12 @@ export default {
   props: {},
   methods: {
     updateArtist(event) {
+      this.$store.commit("setPlayListIndex", this.resetIndex);
       this.$store.commit(
         "setChannels_name",
         event.currentTarget.getAttribute("artistChannelName")
       );
+
       this.$store.dispatch("connectYoutube");
     }
   }

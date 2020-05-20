@@ -13,16 +13,16 @@
           <div class="black">
             <v-chip
               color="black"
-              @click="playlistIndex--"
-              :disabled="playlistIndex <= 0"
+              @click="decrement"
+              :disabled="playListIndex <= 0"
               class="ma-2"
             >
               <v-icon small color="grey darken-1">$backward</v-icon>
             </v-chip>
             <v-chip
               color="black"
-              @click="playlistIndex++"
-              :disabled="playlistIndex >= playlistIdArray.length"
+              @click="increment"
+              :disabled="increment >= playlistIdArray.length"
               class="ma-2"
             >
               <v-icon small color="grey darken-1">$next</v-icon>
@@ -34,45 +34,24 @@
   </div>
 </template>
 <script>
+import { mapState, mapActions } from "vuex";
 export default {
   name: "ContainerPlaylistToolbar",
   comments: {},
   data() {
     return {
-      playlistIndex: 0,
       dialog: false
     };
   },
   props: {},
-  updated() {
-    this.$store.commit("setPlayListIndex", this.playlistIndex);
-  },
-  watch: {
-    playlistTitle() {
-      //  this.playClassTotal = document.querySelectorAll(".play");
-      this.$store.commit(
-        "setEventTargetIndex",
-        Array.from(this.$store.state.playClassTotal)
-      );
-      for (let i = 0; i < this.$store.state.playClassTotal.length; i++) {
-        this.$store.state.playClassTotal[i].classList.remove("vid-active");
-        this.$store.state.playClassTotal[0].classList.add("vid-active");
-      }
-    }
-  },
+  updated() {},
+  watch: {},
   computed: {
-    playlistTitle() {
-      return this.$store.state.playlistTitle;
-    },
-    playlistIdArray() {
-      return this.$store.state.playlistIdArray;
-    },
-    playListIndex() {
-      return this.$store.state.playListIndex;
-    }
+    ...mapState(["playlistTitle", "playlistIdArray", "playListIndex"])
   },
-
-  methods: {}
+  methods: {
+    ...mapActions(["increment", "decrement"])
+  }
 };
 </script>
 <style scoped></style>

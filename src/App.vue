@@ -3,7 +3,7 @@
     <v-content class="grey darken-4">
       <v-container fluid>
         <v-row
-          >{{ this.$store.state.channels_name }}ssss
+          >{{ this.$store.state.channels_name }}
           <ContainerFavorite class="grey darken-4"></ContainerFavorite>
         </v-row>
         <v-col class="grey darken-4 text-center">

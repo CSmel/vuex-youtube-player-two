@@ -44,10 +44,15 @@ export const store = new Vuex.Store({
     minute: "",
     videoData: "",
     contentDetailsArray: [],
-    dialog: false,
     visible: false
   },
   mutations: {
+  increment(state) {
+  state.playListIndex++;
+  },
+  decrement(state) {
+  state.playListIndex--;
+  },
     setActiveLink(state, setActiveLink) {
       state.setActiveLink = setActiveLink;
     },
@@ -173,6 +178,9 @@ export const store = new Vuex.Store({
   },
   //axios calls
   actions: {
+  increment: ({ commit }) => commit('increment'),
+  decrement: ({ commit }) => commit('decrement'),
+
     // 1 connect
     connectYoutube: function({ commit, state }, payload) {
       //this.channels_name = "massiveattack"; //example
@@ -202,7 +210,6 @@ export const store = new Vuex.Store({
           commit("setChannelId", response.data.items[0].id);
           commit("setPageToken", "");
           this.dispatch("getPlaylistId");
-          console.log("ConnectYoutube Loaded");
         });
     },
 
@@ -214,7 +221,7 @@ export const store = new Vuex.Store({
             encodeURIComponent(state.videoId) +
             "&key=" +
             encodeURIComponent(state.apikey) +
-            "&part=snippet,statistics",
+            "&part=snippet,statistics,contentDetails",
           payload
         )
         .then(response => {
@@ -231,6 +238,7 @@ export const store = new Vuex.Store({
             "setDesc",
             response.data.items[0].snippet.localized.description
           );
+          console.log('response data', response.data)
           //this.channelTitle = response.data.items[0].snippet.channelTitle;
           // this.addCommas(this.viewCount);
           //this.addCommas(this.likeCount);
@@ -239,13 +247,12 @@ export const store = new Vuex.Store({
           // commit('setNewPublishedAt', this.timeSince(
           //   new Date(this.publishedAt).getTime()
           // ))
-          console.log("youtube Detect Loaded");
         });
     }, /// get the playlist ID
     getPlaylistId({ commit, state }, payload) {
       axios
         .get(
-          "https://www.googleapis.com/youtube/v3/playlists?part=snippet&maxResults=50&channelId=" +
+          "https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=50&channelId=" +
             encodeURIComponent(state.channelId) +
             "&key=" +
             encodeURIComponent(state.apikey) +
@@ -264,16 +271,15 @@ export const store = new Vuex.Store({
             "setPlayListId",
             response.data.items[encodeURIComponent(state.playListIndex)].id
           );
-          console.log("Playlist Title", this.playlistTitle);
           this.dispatch("displayPlayListIdList");
-          console.log("getPlaylistId loaded");
+          console.log('playListIdArray', response.data)
         });
     },
     // get the entire playlist
     displayPlayListIdList({ commit, state }, payload) {
       axios
         .get(
-          "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&key=" +
+          "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=2&key=" +
             encodeURIComponent(state.apikey) +
             "&playlistId=" +
             encodeURIComponent(state.playListId),
@@ -292,7 +298,6 @@ export const store = new Vuex.Store({
           );
 
           //this.displayPlayListIdListArray = response.data;
-          console.log("Video List", state.videoList);
           this.dispatch("youtube_det");
         });
     },
@@ -302,14 +307,12 @@ export const store = new Vuex.Store({
     playYoutubeVideo({ state }) {
       let ytplayer = videojs("vid1");
       ytplayer.src({ type: "video/youtube", src: state.pageTokenUrl });
-      console.log(state.pageTokenUrl);
     },
 
     // end of testing -------------------------------
     createVideoArray({ commit }) {
       const playArray = document.querySelectorAll(".play");
       commit("setEachVideo", Array.prototype.slice.call(playArray));
-      console.log("PlayArray Loaded!!!!");
     }
   },
 
@@ -339,7 +342,7 @@ export const store = new Vuex.Store({
     thumbnailUrl: state => state.thumbnailUrl,
 
     eachVideo: state => state.eachVideo,
-
+  contentDetailsArray: state => state.contentDetailsArray,
     playlistTitle: state => state.playlistTitle,
     pageTokenUrl: state => state.pageTokenUrl,
     nextpageToken: state => state.nextpageToken,
