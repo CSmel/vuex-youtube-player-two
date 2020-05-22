@@ -32,7 +32,7 @@
                     ><i class="fa fa-thumbs-down pull-right"
                       >{{ dislikeCount }} Dislike</i
                     ><br />
-                    {{ likeCount }}<i class="fa fa-thumbs-up pull-right"></i>
+                    *{{ likeCount }}*<i class="fa fa-thumbs-up pull-right"></i>
                     <hr />
                     {{ desc }}<br />
                   </div>
@@ -95,7 +95,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters } from "vuex";
 import axios from "axios";
 export default {
   name: "ContainerPlaylist",
@@ -103,31 +103,94 @@ export default {
   data() {
     return {
       showIndex: null,
-    dialog: false,
-
+      dialog: false
     };
   },
   props: {},
   watch: {
-  playlistTitle() {
-  this.showIndex = 0
-   const playClassTotal = document.querySelectorAll(".play");
+    playlistTitle() {
+      this.showIndex = 0;
+      const playClassTotal = document.querySelectorAll(".play");
 
-  for (let i = 0; i < playClassTotal.length; i++) {
-  playClassTotal[i].classList.remove("vid-active");
-  playClassTotal[0].classList.add("vid-active");
-  }
-  }
+      for (let i = 0; i < playClassTotal.length; i++) {
+        playClassTotal[i].classList.remove("vid-active");
+        playClassTotal[0].classList.add("vid-active");
+      }
+    }
   },
   mounted() {
     this.formatDurationTime();
   },
 
   updated() {
- this.formatDurationTime();
+    this.formatDurationTime();
+   this.addCommasVC(this.viewCount)
+    this.addCommasLC(this.likeCount);
+   this.addCommasDLC(this.dislikeCount)
+  this.urlify(this.desc).replace(/\n/g, "<br />");
   },
 
   methods: {
+    addCommas(nStr) {
+      nStr += "";
+      this.x = nStr.split(".");
+      this.x1 = this.x[0];
+      this.x2 = this.x.length > 1 ? "." + this.x[1] : "";
+      this.rgx = /(\d+)(\d{3})/;
+    },
+  addCommasVC(nStr){
+    this.addCommas(nStr)
+  while (this.rgx.test(this.x1)) {
+  this.x1 = this.x1.replace(this.rgx, "$1" + "," + "$2");
+  this.$store.commit('setViewCount',this.x1 + this.x2)
+  }
+  },  addCommasLC(nStr){
+  this.addCommas(nStr)
+  while (this.rgx.test(this.x1)) {
+  this.x1 = this.x1.replace(this.rgx, "$1" + "," + "$2");
+  this.$store.commit('setLikeCount',this.x1 + this.x2)
+  }
+  },
+  addCommasDLC(nStr){
+  this.addCommas(nStr)
+  while (this.rgx.test(this.x1)) {
+  this.x1 = this.x1.replace(this.rgx, "$1" + "," + "$2");
+  this.$store.commit('setdislikeCount',this.x1 + this.x2)
+  }
+  },
+
+    timeSince(a) {
+      let s = Math.floor((new Date() - a) / 1000),
+        i = Math.floor(s / 31536000);
+      if (i > 1) {
+        return i + " years ago";
+      }
+      i = Math.floor(s / 2592000);
+      if (i > 1) {
+        return i + " months ago";
+      }
+      i = Math.floor(s / 86400);
+      if (i > 1) {
+        return i + " days ago";
+      }
+      i = Math.floor(s / 3600);
+      if (i > 1) {
+        return i + " hours ago";
+      }
+      i = Math.floor(s / 60);
+      if (i > 1) {
+        return i + " minutes ago";
+      }
+      return Math.floor(s) + " seconds ago";
+    },
+    urlify(b) {
+      let c = /(https?:\/\/[^\s]+)/g;
+      return b.replace(c, function(a) {
+        return (
+          '<a href="' + a + '" rel="nofollow" target="_BLANK">' + a + "</a>"
+        );
+      });
+    },
     playVideo(event) {
       if (encodeURIComponent(this.$store.state.activeLink)) {
         encodeURIComponent(this.$store.state.activeLink).classList.remove(
@@ -178,7 +241,7 @@ export default {
           .get(
             "https://www.googleapis.com/youtube/v3/videos?id=" +
               this.$store.state.newId +
-              "&key=AIzaSyChhn0kj1g-rFE69Gb-lRJgbjwtQyKkjp4&part=contentDetails"
+              "&key=AIzaSyCaAkPkdu44TjKTkidbByOkFJcHdBy_4CM&part=contentDetails"
           )
           .then(response => {
             this.$store.commit("setContentDetailsArray", response.data.items);
@@ -227,30 +290,30 @@ export default {
     }
   },
   computed: {
-  ...mapGetters([
-    'dialog',
-    'videoAttr',
-    'title',
-    'viewCount',
-    'newPublishedAt',
-    'likeCount',
-    'dislikeCount',
-    'desc',
-    'videoList',
-    'channels_title',
-    'channels_name',
-    'channelsHref',
-    'pageTokenUrl',
-  'playlistTitle',
-    'channelTitle'
-  ])
+    ...mapGetters([
+      "dialog",
+      "videoAttr",
+      "title",
+      "viewCount",
+      "newPublishedAt",
+      "likeCount",
+      "dislikeCount",
+      "desc",
+      "videoList",
+      "channels_title",
+      "channels_name",
+      "channelsHref",
+      "pageTokenUrl",
+      "playlistTitle",
+      "channelTitle"
+    ])
   }
 };
 </script>
 <style scoped>
 .durationId {
   border: 1px solid red;
- display: none;
+  display: none;
 }
 
 .displayDuration {

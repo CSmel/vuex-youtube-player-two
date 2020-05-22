@@ -15,7 +15,7 @@ export const store = new Vuex.Store({
     likeCount: "",
     dislikeCount: "",
     videoId: "",
-    apikey: "AIzaSyChhn0kj1g-rFE69Gb-lRJgbjwtQyKkjp4",
+    apikey: "AIzaSyCaAkPkdu44TjKTkidbByOkFJcHdBy_4CM",
 
     appPlaylistIndex: 0,
     eventTargetIndex: 1,
@@ -248,11 +248,13 @@ export const store = new Vuex.Store({
           //   new Date(this.publishedAt).getTime()
           // ))
         });
-    }, /// get the playlist ID
+    },
+
+  /// get the playlist ID
     getPlaylistId({ commit, state }, payload) {
       axios
         .get(
-          "https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=50&channelId=" +
+          "https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=2&channelId=" +
             encodeURIComponent(state.channelId) +
             "&key=" +
             encodeURIComponent(state.apikey) +
@@ -301,15 +303,10 @@ export const store = new Vuex.Store({
           this.dispatch("youtube_det");
         });
     },
-
-    //-------------------------------testing
-
     playYoutubeVideo({ state }) {
       let ytplayer = videojs("vid1");
       ytplayer.src({ type: "video/youtube", src: state.pageTokenUrl });
     },
-
-    // end of testing -------------------------------
     createVideoArray({ commit }) {
       const playArray = document.querySelectorAll(".play");
       commit("setEachVideo", Array.prototype.slice.call(playArray));
@@ -336,11 +333,9 @@ export const store = new Vuex.Store({
     pageToken: state => state.pageToken,
     uploadsId: state => state.uploadsId,
     channels_title: state => state.channels_title,
-
     channels_name: state => state.channels_name,
     channelsHref: state => state.channelsHref,
     thumbnailUrl: state => state.thumbnailUrl,
-
     eachVideo: state => state.eachVideo,
   contentDetailsArray: state => state.contentDetailsArray,
     playlistTitle: state => state.playlistTitle,
