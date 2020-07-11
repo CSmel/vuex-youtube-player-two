@@ -6,7 +6,7 @@
           >
           <ContainerFavorite class="grey darken-4"></ContainerFavorite>
         </v-row>
-        <v-col class="grey darken-4 text-center">
+        <v-col :class="{'px-0': $vuetify.breakpoint.xsOnly }" class="grey darken-4 text-center">
           <container-playlist-toolbar></container-playlist-toolbar>
           <container-playlist></container-playlist>
         </v-col>
@@ -22,6 +22,9 @@ import ContainerPlaylistToolbar from "./components/ContainerPlaylistToolbar";
 import ContainerPlaylist from "./components/ContainerPlaylist";
 import ContainerFavorite from "./components/ContainerFavorite";
 import VideoPlayerFooter from "./components/VideoPlayerFooter.vue";
+import { mapGetters } from "vuex";
+
+
 
 export default {
   name: "App",
@@ -42,7 +45,7 @@ export default {
         },
         sources: [
           {
-            src: "https://www.youtube.com/embed/ehNXOIpRr6c",
+            src: "https://www.youtube.com/embed/dp58R7BEhrw",
             type: "video/youtube"
           }
         ]
@@ -59,7 +62,7 @@ export default {
     }
   },
   updated() {
-
+  this.createVideoArray();
   },
   mounted() {
     this.$nextTick(function() {
@@ -83,12 +86,13 @@ export default {
 
   },
   computed: {
-    playListId() {
-      return this.$store.state.playListId;
-    },
-    playListIndex() {
-      return this.$store.state.playListIndex;
-    }
+  ...mapGetters([
+    'playListId',
+    'playListIndex',
+    'videoAttr'
+  ]),
+
+
   }
 };
 </script>

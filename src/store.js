@@ -44,15 +44,32 @@ export const store = new Vuex.Store({
     minute: "",
     videoData: "",
     contentDetailsArray: [],
-    visible: false
+    visible: false,
+    n: 0
   },
+
   mutations: {
-  increment(state) {
-  state.playListIndex++;
-  },
-  decrement(state) {
-  state.playListIndex--;
-  },
+    increment(state) {
+      state.playListIndex++;
+    },
+    decrement(state) {
+      state.playListIndex--;
+    },
+    moveForward(state) {
+      state.n++;
+      state.eachVideo[state.n - 2].classList.remove("vid-active");
+      state.eachVideo[state.n - 1].classList.add("vid-active");
+      this.dispatch("playMusic", state.n);
+
+      //
+      // this.youtube_det();
+    },
+    moveBackwards(state) {
+      state.n--;
+      state.eachVideo[state.n].classList.remove("vid-active");
+      state.eachVideo[state.n - 1].classList.add("vid-active");
+      this.dispatch("playMusic", state.n);
+    },
     setActiveLink(state, setActiveLink) {
       state.setActiveLink = setActiveLink;
     },
@@ -100,12 +117,10 @@ export const store = new Vuex.Store({
     setPlayListId(state, playListId) {
       state.playListId = playListId;
     },
-    setAppPlayListIndex(state, appPlayListIndex) {
-      state.appPlayListIndex = appPlayListIndex;
-    },
     setPlayListIndex(state, playListIndex) {
       state.playListIndex = playListIndex;
     },
+
     setEventTargetIndex(state, eventTargetIndex) {
       state.eventTargetIndex = eventTargetIndex;
     },
@@ -151,6 +166,12 @@ export const store = new Vuex.Store({
     setPlaylistIdArray(state, playlistIdArray) {
       state.playlistIdArray = playlistIdArray;
     },
+    setPlatyListIndex(state, playListIndex) {
+      state.playListIndex = playListIndex;
+    },
+    setN(state, n) {
+      state.n = n;
+    },
     setNewId(state, newId) {
       state.newId = newId;
     },
@@ -172,14 +193,37 @@ export const store = new Vuex.Store({
     setDialog(state, dialog) {
       state.dialog = dialog;
     }
-    // setShowIndex(state, showIndex) {
-    // state.showIndex = showIndex;
-    // }
   },
   //axios calls
   actions: {
-  increment: ({ commit }) => commit('increment'),
-  decrement: ({ commit }) => commit('decrement'),
+    playMusic({ dispatch, commit, state }) {
+      commit(
+        "setVideoAttr",
+        state.eachVideo[state.n - 1].getAttribute("data-vvv")
+      );
+      commit(
+        "setVideoId",
+        state.eachVideo[state.n - 1].getAttribute("data-vvv")
+      );
+      commit(
+        "setPageTokenUrl",
+        "https://www.youtube.com/embed/" + state.videoId
+      );
+      dispatch("youtube_det");
+    },
+    increment: ({ commit }) => commit("increment"),
+    decrement: ({ commit }) => commit("decrement"),
+    moveForward({ commit, dispatch }) {
+      commit("moveForward");
+      dispatch("playYoutubeVideo");
+      dispatch("youtube_det");
+    },
+
+    moveBackwards({ commit, dispatch }) {
+      commit("moveBackwards");
+      dispatch("playYoutubeVideo");
+      dispatch("youtube_det");
+    },
 
     // 1 connect
     connectYoutube: function({ commit, state }, payload) {
@@ -238,23 +282,13 @@ export const store = new Vuex.Store({
             "setDesc",
             response.data.items[0].snippet.localized.description
           );
-          console.log('response data', response.data)
-          //this.channelTitle = response.data.items[0].snippet.channelTitle;
-          // this.addCommas(this.viewCount);
-          //this.addCommas(this.likeCount);
-          //  this.addCommas(this.dislikeCount);
-          //this.urlify(this.desc).replace(/\n/g, "<br />");
-          // commit('setNewPublishedAt', this.timeSince(
-          //   new Date(this.publishedAt).getTime()
-          // ))
         });
     },
-
-  /// get the playlist ID
+    /// get the playlist ID
     getPlaylistId({ commit, state }, payload) {
       axios
         .get(
-          "https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=2&channelId=" +
+          "https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=50&channelId=" +
             encodeURIComponent(state.channelId) +
             "&key=" +
             encodeURIComponent(state.apikey) +
@@ -266,22 +300,17 @@ export const store = new Vuex.Store({
           commit("setPlaylistIdArray", response.data.items);
           commit(
             "setPlaylistTitle",
-            response.data.items[encodeURIComponent(state.playListIndex)].snippet
-              .title
+            response.data.items[state.playListIndex].snippet.title
           );
-          commit(
-            "setPlayListId",
-            response.data.items[encodeURIComponent(state.playListIndex)].id
-          );
+          commit("setPlayListId", response.data.items[state.playListIndex].id);
           this.dispatch("displayPlayListIdList");
-          console.log('playListIdArray', response.data)
         });
     },
     // get the entire playlist
     displayPlayListIdList({ commit, state }, payload) {
       axios
         .get(
-          "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=2&key=" +
+          "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=3&key=" +
             encodeURIComponent(state.apikey) +
             "&playlistId=" +
             encodeURIComponent(state.playListId),
@@ -296,9 +325,8 @@ export const store = new Vuex.Store({
           );
           commit(
             "setPageTokenUrl",
-            "https://www.youtube.com/embed/g1rz_QXQt34" + state.videoId
+            "https://www.youtube.com/embed/" + state.videoId
           );
-
           //this.displayPlayListIdListArray = response.data;
           this.dispatch("youtube_det");
         });
@@ -307,9 +335,12 @@ export const store = new Vuex.Store({
       let ytplayer = videojs("vid1");
       ytplayer.src({ type: "video/youtube", src: state.pageTokenUrl });
     },
+
     createVideoArray({ commit }) {
-      const playArray = document.querySelectorAll(".play");
-      commit("setEachVideo", Array.prototype.slice.call(playArray));
+      setTimeout(() => {
+        const playArray = document.querySelectorAll(".play");
+        commit("setEachVideo", Array.prototype.slice.call(playArray));
+      }, 1000);
     }
   },
 
@@ -326,6 +357,8 @@ export const store = new Vuex.Store({
     playListId: state => state.playListId,
     apikey: state => state.apikey,
     appPlaylistIndex: state => state.appPlaylistIndex,
+    playListIndex: state => state.playListIndex,
+    n: state => state.n,
     eventTargetIndex: state => state.eventTargetIndex,
     activeLink: state => state.activeLink,
     playClassTotal: state => state.playClassTotal,
@@ -337,7 +370,7 @@ export const store = new Vuex.Store({
     channelsHref: state => state.channelsHref,
     thumbnailUrl: state => state.thumbnailUrl,
     eachVideo: state => state.eachVideo,
-  contentDetailsArray: state => state.contentDetailsArray,
+    contentDetailsArray: state => state.contentDetailsArray,
     playlistTitle: state => state.playlistTitle,
     pageTokenUrl: state => state.pageTokenUrl,
     nextpageToken: state => state.nextpageToken,

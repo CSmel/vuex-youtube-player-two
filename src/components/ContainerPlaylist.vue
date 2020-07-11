@@ -1,11 +1,11 @@
 <template>
   <div>
     <v-card
-      :fullscreen="$vuetify.breakpoint.xsOnly"
       max-width="700px"
-      class="mx-auto"
+      class="  mx-auto"
     >
-      <v-container class="grey darken-4">
+      <v-container
+                           class="white darken-4">
         <v-row class="grey darken-4" dense>
           <v-col v-for="(d, index) in videoList" v-bind:key="d.url" cols="12"
             ><div v-if="showIndex === index">
@@ -28,11 +28,12 @@
                   </div>
                   <div class="">
                     <i class="fa fa-clock-o">
-                      <span>{{ newPublishedAt }}</span></i
-                    ><i class="fa fa-thumbs-down pull-right"
+                      <span>{{ newPublishedAt }}</span>
+                      <br></i
+                    ><br><i class="fa fa-thumbs-down pull-right"
                       >{{ dislikeCount }} Dislike</i
-                    ><br />
-                    *{{ likeCount }}*<i class="fa fa-thumbs-up pull-right"></i>
+                    >
+                    {{ likeCount }}<i class="fa fa-thumbs-up pull-right"></i>
                     <hr />
                     {{ desc }}<br />
                   </div>
@@ -45,17 +46,18 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <div @click="showIndex = index">
+            <div  @click="showIndex = index">
               <v-hover v-slot:default="{ hover }">
-                <v-card height="120" dark>
+                <v-card  :class="{'px-0': $vuetify.breakpoint.xsOnly}"  :height="playlistItemHeight" :width="playlistItemWidth" dark>
                   <div
                     class="play d-flex flex-no-wrap justify-space-between"
-                    :class="{ 'vid-active': index === 0 }"
-                    v-bind:index="index"
+
+                    :class="{ 'vid-active': index === 0,  }"
+                    v-bind:index="index +1 "
                     v-bind:data-vvv="d.snippet.resourceId.videoId"
                   >
-                    <div>
-                      <v-card-title class="subtitle-2">
+                    <div >
+                      <v-card-title :class="{'px-0': $vuetify.breakpoint.xsOnly,'caption': $vuetify.breakpoint.xsOnly}"  >
                         <div :min="d.minute">
                           <div>
                             <span :class="[`vid-tm${index}`]"></span>
@@ -63,17 +65,18 @@
                           {{ d.snippet.title }}
                         </div>
                       </v-card-title>
-                      <v-card-subtitle
+                      <v-card-subtitle :class="{'caption': $vuetify.breakpoint.xsOnly}"
                         ><span class="float-left displayDuration">
                           <span class="min"></span>:<span
                             class="sec"
                           ></span> </span
                       ></v-card-subtitle>
                     </div>
-                    <v-avatar class="ma-3" size="100" tile>
+                    <v-avatar class="ma-3" tile>
                       <v-img :src="d.snippet.thumbnails.default.url"></v-img>
                     </v-avatar>
                     <div class="durationId" :class="[`duration${index}`]">{{ d.snippet.resourceId.videoId }}</div>
+
                   </div>
                   <v-expand-transition>
                     <div
@@ -81,7 +84,7 @@
                       v-if="hover"
                       class="d-flex pointer transition-fast-in-fast-out primary darken-2 v-card--reveal display-3 white--text"
                       style="height: 100%;"
-                    >
+                    ><div class="index"></div>
                       Play Me
                     </div>
                   </v-expand-transition>
@@ -92,6 +95,7 @@
         </v-row>
       </v-container>
     </v-card>
+
   </div>
 </template>
 <script>
@@ -103,14 +107,20 @@ export default {
   data() {
     return {
       showIndex: null,
-      dialog: false
+      dialog: false,
+
+    al:'',
     };
   },
   props: {},
   watch: {
     playlistTitle() {
       this.showIndex = 0;
+    this.$store.commit(
+      "setN", 1
+    );
       const playClassTotal = document.querySelectorAll(".play");
+
 
       for (let i = 0; i < playClassTotal.length; i++) {
         playClassTotal[i].classList.remove("vid-active");
@@ -120,14 +130,18 @@ export default {
   },
   mounted() {
     this.formatDurationTime();
+  ///testing
+
   },
 
   updated() {
-    this.formatDurationTime();
+
+  this.formatDurationTime();
    this.addCommasVC(this.viewCount)
     this.addCommasLC(this.likeCount);
    this.addCommasDLC(this.dislikeCount)
   this.urlify(this.desc).replace(/\n/g, "<br />");
+
   },
 
   methods: {
@@ -155,7 +169,7 @@ export default {
   this.addCommas(nStr)
   while (this.rgx.test(this.x1)) {
   this.x1 = this.x1.replace(this.rgx, "$1" + "," + "$2");
-  this.$store.commit('setdislikeCount',this.x1 + this.x2)
+  this.$store.commit('setDislikeCount',this.x1 + this.x2)
   }
   },
 
@@ -191,18 +205,19 @@ export default {
         );
       });
     },
+
     playVideo(event) {
       if (encodeURIComponent(this.$store.state.activeLink)) {
         encodeURIComponent(this.$store.state.activeLink).classList.remove(
           "vid-active"
         );
       }
+
       let els = this.$el.querySelectorAll(".play.vid-active");
-      const playClassTotal = this.$el.querySelectorAll(".play");
+      this.$store.commit('setPlayClassTotal',this.$el.querySelectorAll(".play"))
+
       this.$store.commit(
-        "setEventTargetIndex",
-        Array.from(playClassTotal).indexOf(event.target) + 1
-      );
+        "setEventTargetIndex", Array.from(this.$store.state.playClassTotal).indexOf(event.target.index) + 1);
 
       for (let i = 0; i < els.length; i++) {
         els[i].classList.remove("vid-active");
@@ -220,15 +235,19 @@ export default {
         "setVideoId",
         event.target.previousElementSibling.getAttribute("data-vvv")
       );
-
+    this.$store.commit(
+      "setN",
+      event.target.previousElementSibling.getAttribute("index")
+    );
       this.$store.commit(
         "setPageTokenUrl",
-        "https://www.youtube.com/embed/" + this.$store.state.videoId
+        "http://youtube.com/embed/" + this.$store.state.videoId
       );
       // this.playYoutubeVideo();
       this.$store.dispatch("playYoutubeVideo");
 
       this.$store.dispatch("youtube_det");
+      console.log(this.$store.state.eventTargetIndex)
     },
     formatDurationTime() {
       const vidTotal = this.$el.querySelectorAll(".play");
@@ -287,15 +306,17 @@ export default {
             ].innerHTML = this.$store.state.seconds;
           });
       }
+    this.$store.commit('setNewPublishedAt', this.timeSince(new Date(this.$store.state.publishedAt).getTime()))
     }
   },
   computed: {
+
     ...mapGetters([
-      "dialog",
       "videoAttr",
       "title",
       "viewCount",
       "newPublishedAt",
+      "publishedAt",
       "likeCount",
       "dislikeCount",
       "desc",
@@ -305,8 +326,52 @@ export default {
       "channelsHref",
       "pageTokenUrl",
       "playlistTitle",
-      "channelTitle"
-    ])
+      "channelTitle",
+      "eventTargetIndex"
+    ]),
+  // eslint-disable-next-line vue/return-in-computed-property
+  playlistItemHeight () {
+  switch (this.$vuetify.breakpoint.name) {
+  case 'xs':
+  return '70px'
+  case 'sm':
+  return '120px'
+  case 'md':
+  return '120px'
+  case 'lg':
+  return '140px'
+  }
+  // eslint-disable-next-line vue/return-in-computed-property
+  },  playlistItemWidth () {
+  switch (this.$vuetify.breakpoint.name) {
+  case 'xs':
+  return '100vw'
+  case 'sm':
+  return '400px'
+  case 'md':
+  return '600px'
+  case 'lg':
+  return '800px'
+  case 'xl':
+  return '1000px'
+  }
+  },
+  // eslint-disable-next-line vue/return-in-computed-property
+  fontSize () {
+  switch (this.$vuetify.breakpoint.name) {
+  case 'xs':
+  return '5rem'
+  case 'sm':
+  return '45rem'
+  case 'md':
+  return '600px'
+  case 'lg':
+  return '30px'
+  case 'xl':
+  return '30px !important'
+  }
+  },
+
   }
 };
 </script>

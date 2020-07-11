@@ -22,7 +22,7 @@
             <v-chip
               color="black"
               @click="increment"
-              :disabled="increment >= playlistIdArray.length"
+              :disabled="playListIndex >= playlistIdArray.length"
               class="ma-2"
             >
               <v-icon small color="grey darken-1">$next</v-icon>
@@ -34,7 +34,8 @@
   </div>
 </template>
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState} from "vuex";
+import{mapActions} from "vuex"
 export default {
   name: "ContainerPlaylistToolbar",
   comments: {},
@@ -49,9 +50,11 @@ export default {
   computed: {
     ...mapState(["playlistTitle", "playlistIdArray", "playListIndex"])
   },
-  methods: {
-    ...mapActions(["increment", "decrement"])
-  }
+  methods: mapActions([
+  'increment',
+  'decrement',
+
+  ])
 };
 </script>
 <style scoped></style>
