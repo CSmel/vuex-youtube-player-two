@@ -12,7 +12,7 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
     "es6-promise": "^4.2.8",
-    "video.js": "^7.7.5",
+    "video.js": "^7.20.3",
     "videojs-youtube": "^2.6.1",
     "vue": "^2.6.11",
     "vuetify": "^2.2.27",
